@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太行智算中心项目运行值班记录表</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #2d8cf0;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            color: #2d8cf0;
+            margin: 0;
+            font-size: 22px;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .form-label {
+            width: 120px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .form-content {
+            flex: 1;
+        }
+        input[type="text"], input[type="date"], input[type="time"], textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdee2;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input {
+            margin-right: 5px;
+        }
+        .system-section {
+            margin-bottom: 20px;
+        }
+        .system-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d8cf0;
+            border-left: 4px solid #2d8cf0;
+            padding-left: 8px;
+        }
+        .system-row {
+            display: flex;
+            margin-bottom: 10px;
+            padding-left: 15px;
+        }
+        .system-label {
+            width: 150px;
+            font-weight: bold;
+        }
+        .system-content {
+            flex: 1;
+        }
+        .instruction {
+            background-color: #f8f8f9;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #ff9900;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+        .signature-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        .signature {
+            width: 200px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-submit {
+            background-color: #2d8cf0;
+            color: white;
+        }
+        .btn-submit:hover {
+            background-color: #1c7ae6;
+        }
+        .btn-reset {
+            background-color: #f4f4f5;
+            color: #606266;
+            border: 1px solid #dcdee2;
+        }
+        .btn-reset:hover {
+            background-color: #e5e5e7;
+        }
+        .shift-options {
+            display: flex;
+            gap: 15px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+        }
+        .success-message, .error-message {
+            display: none;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .success-message {
+            background-color: #f0f9ff;
+            color: #2d8cf0;
+            border: 1px solid #2d8cf0;
+        }
+        .error-message {
+            background-color: #fef0f0;
+            color: #f56c6c;
+            border: 1px solid #f56c6c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>太行智算中心项目运行值班记录表</h1>
+        </div>
+        
+        <div class="success-message" id="successMessage">交接班记录提交成功！</div>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="loading" id="loading">提交中，请稍候...</div>
+        
+        <form id="shiftHandoverForm">
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-label">日期/时间：</div>
+                    <div class="form-content">
+                        <input type="date" id="startDate" name="startDate" required> 
+                        <input type="time" id="startTime" name="startTime" required>
+                        至
+                        <input type="date" id="endDate" name="endDate" required>
+                        <input type="time" id="endTime" name="endTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-label">班次：</div>
+                    <div class="form-content shift-options">
+                        <div class="checkbox-item">
+                            <input type="radio" id="dayShift" name="shift" value="白班" required>
+                            <label for="dayShift">白班</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="nightShift" name="shift" value="夜班" required>
+                            <label for="nightShift">夜班</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-label">交班人：</div>
+                    <div class="form-content">
+                        <input type="text" id="handoverPerson" name="handoverPerson" placeholder="请输入交班人姓名" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="system-section">
+                <div class="system-title">系统交接</div>
+                
+                <div class="system-row">
+                    <div class="system-label">电气系统</div>
+                    <div class="system-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="electricalNormal" name="electricalStatus" value="正常" required>
+                                <label for="electricalNormal">正常</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="electricalAbnormal" name="electricalStatus" value="异常">
+                                <label for="electricalAbnormal">异常</label>
+                            </div>
+                            <input type="text" id="electricalRemark" name="electricalRemark" placeholder="异常说明" style="display: none; margin-left: 10px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="system-row">
+                    <div class="system-label">暖通系统</div>
+                    <div class="system-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="hvacNormal" name="hvacStatus" value="正常" required>
+                                <label for="hvacNormal">正常</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="hvacAbnormal" name="hvacStatus" value="异常">
+                                <label for="hvacAbnormal">异常</label>
+                            </div>
+                            <input type="text" id="hvacRemark" name="hvacRemark" placeholder="异常说明" style="display: none; margin-left: 10px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="system-row">
+                    <div class="system-label">环境动力监控系统</div>
+                    <div class="system-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="monitoringNormal" name="monitoringStatus" value="正常" required>
+                                <label for="monitoringNormal">正常</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="monitoringAbnormal" name="monitoringStatus" value="异常">
+                                <label for="monitoringAbnormal">异常</label>
+                            </div>
+                            <input type="text" id="monitoringRemark" name="monitoringRemark" placeholder="异常说明" style="display: none; margin-left: 10px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="system-row">
+                    <div class="system-label">BA系统</div>
+                    <div class="system-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="baNormal" name="baStatus" value="正常" required>
+                                <label for="baNormal">正常</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="baAbnormal" name="baStatus" value="异常">
+                                <label for="baAbnormal">异常</label>
+                            </div>
+                            <input type="text" id="baRemark" name="baRemark" placeholder="异常说明" style="display: none; margin-left: 10px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="system-row">
+                    <div class="system-label">视频监控</div>
+                    <div class="system-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="videoNormal" name="videoStatus" value="正常" required>
+                                <label for="videoNormal">正常</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="videoAbnormal" name="videoStatus" value="异常">
+                                <label for="videoAbnormal">异常</label>
+                            </div>
+                            <input type="text" id="videoRemark" name="videoRemark" placeholder="异常说明" style="display: none; margin-left: 10px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="system-row">
+                    <div class="system-label">门禁系统</div>
+                    <div class="system-content">
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="accessNormal" name="accessStatus" value="正常" required>
+                                <label for="accessNormal">正常</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="accessAbnormal" name="accessStatus" value="异常">
+                                <label for="accessAbnormal">异常</label>
+                            </div>
+                            <input type="text" id="accessRemark" name="accessRemark" placeholder="异常说明" style="display: none; margin-left: 10px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="system-section">
+                <div class="system-title">物品交接</div>
+                
+                <div class="form-row">
+                    <div class="form-label">工具仪表类：</div>
+                    <div class="form-content">
+                        <input type="text" id="tools" name="tools" placeholder="请填写工具仪表交接情况">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-label">钥匙类：</div>
+                    <div class="form-content">
+                        <input type="text" id="keys" name="keys" placeholder="请填写钥匙交接情况">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-label">其它类：</div>
+                    <div class="form-content">
+                        <input type="text" id="others" name="others" placeholder="请填写其他物品交接情况" value="对讲机 部">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-label">当班工作：</div>
+                    <div class="form-content">
+                        <textarea id="currentWork" name="currentWork" placeholder="请详细填写当班工作内容，若本班内填写工单应注明单号"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-label">交接工作：</div>
+                    <div class="form-content">
+                        <textarea id="handoverWork" name="handoverWork" placeholder="请详细填写交接工作内容"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instruction">
+                <strong>填写说明：</strong><br>
+                1. 交接班签字必须为本人签字，严禁代签；<br>
+                2. 系统交接部分在对应项内填写"√"，如异常则说明原因；<br>
+                3. 物品交接需写明物品名称、数量；<br>
+                4. 班中进行的工作应在对应项内详细填写，若本班内填写工单应注明单号；<br>
+                5. 运行值机记录表不得留白；<br>
+                6. 各班次交接时仔细检查各系统运行情况，并清点物品确认，经签字后对值班记录情况负责。
+            </div>
+            
+            <div class="signature-section">
+                <div class="signature">
+                    <div class="form-label">接班人签字：</div>
+                    <div class="form-content">
+                        <input type="text" id="receiverSignature" name="receiverSignature" placeholder="请输入接班人姓名" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" class="btn-reset" onclick="resetForm()">重置</button>
+                <button type="button" class="btn-submit" onclick="submitForm()">提交</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 配置信息 - 在实际使用中需要替换为您的实际信息
+        const CONFIG = {
+            APP_ID: "YOUR_APP_ID", // 替换为您的飞书应用App ID
+            APP_SECRET: "YOUR_APP_SECRET", // 替换为您的飞书应用App Secret
+            SHEET_TOKEN: "YOUR_SHEET_TOKEN" // 替换为您的飞书文档Token
+        };
+        
+        // 设置默认日期和时间
+        function setDefaultDateTime() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const time = now.toTimeString().substring(0, 5);
+            
+            document.getElementById('startDate').value = today;
+            document.getElementById('startTime').value = time;
+            
+            // 设置结束时间为开始时间+8小时（假设一个班次8小时）
+            const endTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+            const endDate = endTime.toISOString().split('T')[0];
+            const endTimeStr = endTime.toTimeString().substring(0, 5);
+            
+            document.getElementById('endDate').value = endDate;
+            document.getElementById('endTime').value = endTimeStr;
+        }
+        
+        // 显示/隐藏异常说明字段
+        function toggleRemarkField(systemName, show) {
+            const remarkField = document.getElementById(systemName + 'Remark');
+            if (remarkField) {
+                remarkField.style.display = show ? 'inline-block' : 'none';
+                if (show) {
+                    remarkField.required = true;
+                } else {
+                    remarkField.required = false;
+                    remarkField.value = '';
+                }
+            }
+        }
+        
+        // 初始化页面
+        function initPage() {
+            setDefaultDateTime();
+            
+            // 为所有异常选项添加事件监听
+            const abnormalRadios = document.querySelectorAll('input[type="radio"][value="异常"]');
+            abnormalRadios.forEach(radio => {
+                const systemName = radio.name.replace('Status', '');
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        toggleRemarkField(systemName, true);
+                    }
+                });
+            });
+            
+            // 为所有正常选项添加事件监听
+            const normalRadios = document.querySelectorAll('input[type="radio"][value="正常"]');
+            normalRadios.forEach(radio => {
+                const systemName = radio.name.replace('Status', '');
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        toggleRemarkField(systemName, false);
+                    }
+                });
+            });
+        }
+        
+        // 重置表单
+        function resetForm() {
+            document.getElementById('shiftHandoverForm').reset();
+            setDefaultDateTime();
+            
+            // 隐藏所有异常说明字段
+            const systems = ['electrical', 'hvac', 'monitoring', 'ba', 'video', 'access'];
+            systems.forEach(system => {
+                toggleRemarkField(system, false);
+            });
+            
+            // 隐藏消息
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // 获取飞书API访问令牌
+        async function getAccessToken() {
+            try {
+                const response = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        app_id: CONFIG.APP_ID,
+                        app_secret: CONFIG.APP_SECRET
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.code === 0) {
+                    return data.tenant_access_token;
+                } else {
+                    throw new Error(`获取访问令牌失败: ${data.msg}`);
+                }
+            } catch (error) {
+                console.error('获取访问令牌错误:', error);
+                throw error;
+            }
+        }
+        
+        // 向飞书文档添加数据
+        async function addDataToSheet(accessToken, data) {
+            try {
+                // 获取文档信息，确定要添加数据的范围
+                const sheetInfoResponse = await fetch(`https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/${CONFIG.SHEET_TOKEN}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                const sheetInfo = await sheetInfoResponse.json();
+                if (sheetInfo.code !== 0) {
+                    throw new Error(`获取文档信息失败: ${sheetInfo.msg}`);
+                }
+                
+                // 添加数据到文档
+                const addDataResponse = await fetch(`https://open.feishu.cn/open-apis/sheets/v2/spreadsheets/${CONFIG.SHEET_TOKEN}/values_append`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        range: "Sheet1", // 假设数据表名为Sheet1
+                        values: [data]
+                    })
+                });
+                
+                const result = await addDataResponse.json();
+                if (result.code === 0) {
+                    return result;
+                } else {
+                    throw new Error(`添加数据失败: ${result.msg}`);
+                }
+            } catch (error) {
+                console.error('添加数据到文档错误:', error);
+                throw error;
+            }
+        }
+        
+        // 提交表单
+        async function submitForm() {
+            // 验证表单
+            if (!validateForm()) {
+                return;
+            }
+            
+            // 显示加载中
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            try {
+                // 获取访问令牌
+                const accessToken = await getAccessToken();
+                
+                // 准备数据
+                const formData = getFormData();
+                
+                // 添加数据到飞书文档
+                await addDataToSheet(accessToken, formData);
+                
+                // 显示成功消息
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // 重置表单
+                setTimeout(() => {
+                    resetForm();
+                }, 2000);
+                
+            } catch (error) {
+                // 显示错误消息
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').textContent = `提交失败: ${error.message}`;
+                console.error('提交错误:', error);
+            }
+        }
+        
+        // 验证表单
+        function validateForm() {
+            const requiredFields = document.querySelectorAll('[required]');
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    alert(`请填写${field.previousElementSibling?.textContent || '必填字段'}`);
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            // 检查所有系统状态是否已选择
+            const systemStatuses = [
+                'electricalStatus', 'hvacStatus', 'monitoringStatus', 
+                'baStatus', 'videoStatus', 'accessStatus'
+            ];
+            
+            for (let status of systemStatuses) {
+                const selected = document.querySelector(`input[name="${status}"]:checked`);
+                if (!selected) {
+                    alert('请检查所有系统状态是否已填写');
+                    return false;
+                }
+                
+                // 如果选择异常，检查是否填写了异常说明
+                if (selected.value === '异常') {
+                    const systemName = status.replace('Status', '');
+                    const remarkField = document.getElementById(systemName + 'Remark');
+                    if (!remarkField.value.trim()) {
+                        alert(`请填写${systemName}异常说明`);
+                        remarkField.focus();
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+        
+        // 获取表单数据
+        function getFormData() {
+            const startDate = document.getElementById('startDate').value;
+            const startTime = document.getElementById('startTime').value;
+            const endDate = document.getElementById('endDate').value;
+            const endTime = document.getElementById('endTime').value;
+            const shift = document.querySelector('input[name="shift"]:checked').value;
+            const handoverPerson = document.getElementById('handoverPerson').value;
+            const receiverSignature = document.getElementById('receiverSignature').value;
+            
+            // 系统状态
+            const electricalStatus = document.querySelector('input[name="electricalStatus"]:checked').value;
+            const electricalRemark = document.getElementById('electricalRemark').value;
+            const hvacStatus = document.querySelector('input[name="hvacStatus"]:checked').value;
+            const hvacRemark = document.getElementById('hvacRemark').value;
+            const monitoringStatus = document.querySelector('input[name="monitoringStatus"]:checked').value;
+            const monitoringRemark = document.getElementById('monitoringRemark').value;
+            const baStatus = document.querySelector('input[name="baStatus"]:checked').value;
+            const baRemark = document.getElementById('baRemark').value;
+            const videoStatus = document.querySelector('input[name="videoStatus"]:checked').value;
+            const videoRemark = document.getElementById('videoRemark').value;
+            const accessStatus = document.querySelector('input[name="accessStatus"]:checked').value;
+            const accessRemark = document.getElementById('accessRemark').value;
+            
+            // 物品交接
+            const tools = document.getElementById('tools').value;
+            const keys = document.getElementById('keys').value;
+            const others = document.getElementById('others').value;
+            
+            // 工作内容
+            const currentWork = document.getElementById('currentWork').value;
+            const handoverWork = document.getElementById('handoverWork').value;
+            
+            // 构建数据行
+            return [
+                `${startDate} ${startTime}`, // 开始时间
+                `${endDate} ${endTime}`,     // 结束时间
+                shift,                       // 班次
+                handoverPerson,              // 交班人
+                electricalStatus + (electricalRemark ? ` (${electricalRemark})` : ''), // 电气系统
+                hvacStatus + (hvacRemark ? ` (${hvacRemark})` : ''),                   // 暖通系统
+                monitoringStatus + (monitoringRemark ? ` (${monitoringRemark})` : ''), // 环境监控
+                baStatus + (baRemark ? ` (${baRemark})` : ''),                         // BA系统
+                videoStatus + (videoRemark ? ` (${videoRemark})` : ''),                // 视频监控
+                accessStatus + (accessRemark ? ` (${accessRemark})` : ''),             // 门禁系统
+                tools,                       // 工具仪表
+                keys,                        // 钥匙
+                others,                      // 其他物品
+                currentWork,                 // 当班工作
+                handoverWork,                // 交接工作
+                receiverSignature            // 接班人
+            ];
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>
